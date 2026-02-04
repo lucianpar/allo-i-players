@@ -10,3 +10,9 @@ debug/
 # Submodules
 allolib/
 al_ext/
+
+.vscode/
+**/.vscode/
+
+.cache/
+.vscode
