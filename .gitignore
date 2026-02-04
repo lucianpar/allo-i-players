@@ -6,3 +6,7 @@ bin
 
 debug/
 .DS_Store
+
+# Submodules
+allolib/
+al_ext/
