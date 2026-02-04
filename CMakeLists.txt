@@ -32,7 +32,17 @@ add_subdirectory(allolib)
 # allolib creates the target `al` (see allolib/CMakeLists.txt). Older
 # setups referenced `alapp`; link against the `al` target instead so the
 # linker can find the library provided by the subproject.
-target_link_libraries(${APP_NAME} PRIVATE al)
+# Check if `alapp` exists and can be linked
+# Check if the `alapp` target exists (created by allolib)
+if(TARGET alapp)
+  message(STATUS "Found alapp target. Linking with alapp.")
+  target_link_libraries(${APP_NAME} PRIVATE alapp)
+else()
+  # If `alapp` target does not exist, fall back to `al`
+  message(STATUS "alapp target not found. Falling back to al.")
+  target_link_libraries(${APP_NAME} PRIVATE al)
+endif()
+### CHECK THIS AREA IF THERE ARE CMAKE ISSUES WITH LINKING ALLOLIB ###
 
 # add al_ext to project & link
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/al_ext)
