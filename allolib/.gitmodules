@@ -1,0 +1,24 @@
+[submodule "external/rtaudio"]
+	path = modules/audio-backend-rtaudio/external/rtaudio
+	url = https://github.com/thestk/rtaudio.git
+[submodule "external/rtmidi"]
+	path = modules/midi/external/rtmidi
+	url = https://github.com/thestk/rtmidi
+[submodule "external/Gamma"]
+	path = modules/external/Gamma
+	url = https://github.com/AlloSphere-Research-Group/Gamma.git
+[submodule "external/imgui"]
+	path = modules/imgui/external/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "external/glfw"]
+	path = modules/graphics/external/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "external/cpptoml"]
+	path = modules/config/external/cpptoml
+	url = https://github.com/AlloSphere-Research-Group/cpptoml.git
+[submodule "external/serial"]
+	path = modules/serial/external/serial
+	url = https://github.com/wjwwood/serial
+[submodule "external/json"]
+	path = modules/config/external/json
+	url = https://github.com/nlohmann/json
