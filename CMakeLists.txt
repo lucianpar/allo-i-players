@@ -15,9 +15,9 @@ if(MSVC)
 endif()
 
 # add source files to executable
-# add_executable(${APP_NAME} adm-allo-player/mainplayer.cpp)
+add_executable(${APP_NAME} adm-allo-player/mainplayer.cpp)
 # add_executable(${APP_NAME} miniShader/src/shaderPlayback.cpp)
-add_executable(${APP_NAME} immersivePlayer.cpp)
+#add_executable(${APP_NAME} immersivePlayer.cpp)
 
 # add allolib to project & link
 # Allow older subprojects that declare very old cmake_minimum_required() (e.g. 2.8)

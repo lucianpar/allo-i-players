@@ -22,6 +22,7 @@
 #include "al/sound/al_SoundFile.hpp"
 
 #include "miniShader/shaderUtility/shaderToSphere.hpp"
+#include "adm-allo-player/mainplayer.hpp"
 
 
 //IMMERSIVE SHADER PLAYER WITH DISTRIBUTED SHADERS FOR THE SPHERE + PLAYBACK FOR 54.1-CHANNEL ADM AUDIO
@@ -35,9 +36,8 @@ public:
 //USER CONFIGURATION HERE - EDIT PATHS / SETTINGS//
     //SET PATHS HERE //
   std::string fragName = "drowning.frag"; 
-  std::string mistFolder = "../miniShader/mistShaders/";
-  std::string ripeFolder = "../miniShader/ripeShaders/";
-  std::string audioPath = "/Users/lucian/Desktop/ripeAudio/mist.wav";
+  std::string shaderFolder = "../miniShader/demoShaders/"; // set to mistShaders or ripeShaders
+  std::string sourceAudioFolderSelection;
 
   //USER CONTROLS HERE //
   float STARTING_TIME = 0.0f;
@@ -65,7 +65,7 @@ public:
 
     parameterServer() << globalTime << running;
     // Graphics initialization
-    searchPaths.addSearchPath(al::File::currentPath() + ripeFolder);
+    searchPaths.addSearchPath(al::File::currentPath() + shaderFolder);
 
     al::FilePath vertPathSource = searchPaths.find("standard.vert");
     if (vertPathSource.valid()) {
@@ -84,39 +84,12 @@ public:
     }
 
     // Audio initialization
-    initializeAudio();
+    // initializeAudio();
   }
 
-  void initializeAudio() {
-    std::cout << "\n=== Audio Initialization ===" << std::endl;
-    std::cout << "Loading audio file: " << audioPath << std::endl;
-    
-    player.soundFile = new al::SoundFile();
-    if (player.soundFile->open(audioPath.c_str())) {
-      // Configure audio playback
-      player.loop = true;
-      player.pause = false; // Start playing immediately
-      player.frame = STARTING_TIME * (player.soundFile->sampleRate);
-      
-      // Print audio file info
-      std::cout << "✓ Audio loaded successfully" << std::endl;
-      std::cout << "  Channels: " << player.soundFile->channels << std::endl;
-      std::cout << "  Sample rate: " << player.soundFile->sampleRate << " Hz" << std::endl;
-      std::cout << "  Frame count: " << player.soundFile->frameCount << std::endl;
-      std::cout << "  Duration: " << (double)player.soundFile->frameCount / player.soundFile->sampleRate << " seconds" << std::endl;
-      
-      // Match audio system sample rate to file
-      audioIO().framesPerSecond(player.soundFile->sampleRate * PLAYBACK_SPEED);
-      std::cout << "  Set system sample rate to: " << player.soundFile->sampleRate << " Hz" << std::endl;
-    } else {
-      std::cout << "✗ Failed to load audio file: " << audioPath << std::endl;
-    }
-
-    // Print audio system info
-    std::cout << "\n=== Audio System Info ===" << std::endl;
-    audioIO().print();
-    std::cout << "Audio system ready: " << (audioIO().isOpen() ? "Yes" : "No") << std::endl;
-  }
+  // void initializeAudio() {
+  //
+  // }
 
   void onCreate() override {
     // Graphics setup
@@ -155,84 +128,12 @@ public:
   }
 
   void onSound(al::AudioIOData& io) override {
-    // Audio callback - processes audio in real-time
-    static bool firstCall = true;
-    if (firstCall) {
-      std::cout << "Audio callback active" << std::endl;
-      firstCall = false;
-    }
-
-    int numFrames = io.framesPerBuffer();
-    int numChannels = io.channelsOut();
-    
-    // Check if we have a valid audio file
-    if (!player.soundFile) {
-      outputSilence(io, numFrames, numChannels);
-      return;
-    }
-
-    // If paused, output silence
-    if (player.pause) {
-      outputSilence(io, numFrames, numChannels);
-      return;
-    }
-
-    // Handle end of file
-    if (player.frame >= player.soundFile->frameCount) {
-      if (player.loop) {
-        player.frame = 0; // Loop back to beginning
-      } else {
-        player.pause = true; // Stop playback
-        outputSilence(io, numFrames, numChannels);
-        return;
-      }
-    }
-
-    // Process and output audio
-    processAudioFrames(io, numFrames, numChannels);
   }
 
 private:
-  void outputSilence(al::AudioIOData& io, int numFrames, int numChannels) {
-    for (int i = 0; i < numFrames; ++i) {
-      for (int ch = 0; ch < numChannels; ++ch) {
-        io.out(ch, i) = 0.0f;
-      }
-    }
-  }
+ 
 
-  void processAudioFrames(al::AudioIOData& io, int numFrames, int numChannels) {
-    int fileChannels = player.soundFile->channels;
-    
-    // Create buffer to hold audio data from file
-    std::vector<float> buffer(numFrames * fileChannels);
-    
-    // Get audio frames from the sound file
-    player.getFrames(numFrames, buffer.data(), buffer.size());
-    
-    // Convert and output audio
-    for (int i = 0; i < numFrames; ++i) {
-      float sample = 0.0f;
-      
-      // Make sure we don't read past buffer end
-      if (i * fileChannels < buffer.size()) {
-        if (fileChannels == 1) {
-          // Mono file
-          sample = buffer[i] * audioGain;
-        } else if (fileChannels >= 2) {
-          // Stereo file - mix to mono
-          float left = buffer[i * fileChannels];
-          float right = buffer[i * fileChannels + 1];
-          sample = 0.5f * (left + right) * audioGain;
-        }
-      }
-      
-      // Output same sample to all output channels
-      for (int ch = 0; ch < numChannels; ++ch) {
-        io.out(ch, i) = sample;
-      }
-    }
-  }
+
 };
 
 int main() {
