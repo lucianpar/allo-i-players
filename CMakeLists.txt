@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.29)
 
+
 project(allo-i-players)
 set(APP_NAME allo-i-players)
 
@@ -19,8 +20,19 @@ endif()
 add_executable(${APP_NAME} immersivePlayer.cpp)
 
 # add allolib to project & link
+# Allow older subprojects that declare very old cmake_minimum_required() (e.g. 2.8)
+# Some bundled/external CMakeLists use ancient VERSION arguments which CMake
+# 3.19+ rejects by default. Set this cache variable so configuration will
+# attempt to proceed without editing every sub-CMakeLists file.
+if(NOT DEFINED CMAKE_POLICY_VERSION_MINIMUM)
+  set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Minimum CMake policy version to allow older subprojects" FORCE)
+endif()
+
 add_subdirectory(allolib)
-target_link_libraries(${APP_NAME} PRIVATE alapp)
+# allolib creates the target `al` (see allolib/CMakeLists.txt). Older
+# setups referenced `alapp`; link against the `al` target instead so the
+# linker can find the library provided by the subproject.
+target_link_libraries(${APP_NAME} PRIVATE al)
 
 # add al_ext to project & link
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/al_ext)
