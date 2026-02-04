@@ -1,6 +1,0 @@
-AlloSystem Example
-==================
-
-    ./makeLinks.pl
-
-
