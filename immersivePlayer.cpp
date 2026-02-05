@@ -163,7 +163,7 @@ public:
         // Toggle both graphics and audio playback
         running = !running;
         player.pause = !running;
-        std::cout << (running ? "▶ Started" : "⏸ Paused") << " graphics and audio" << std::endl;
+        std::cout << (running ? "▶ Started" : "⏸ Paused") << " graphics" << std::endl;
         // return true;
       }
 
