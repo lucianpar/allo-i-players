@@ -45,7 +45,12 @@ public:
    float audioGain = 0.0f;
 
 // END USER CONFIGURATION //
-
+//ADM PLAYER RELATED DONT TOUCH //
+  adm_player adm_player_instance;
+  MyApp() {
+    adm_player_instance.toggleGUI(false); // disable GUI
+    adm_player_instance.setSourceAudioFolder("../adm-allo-player/sourceAudio/");
+  }
   // Graphics related DONT TOUCH //
   al::FileSelector selector;
   al::SearchPaths searchPaths;
@@ -62,6 +67,7 @@ public:
 
 
   void onInit() override {
+    adm_player_instance.onInit();
 
     parameterServer() << globalTime << running;
     // Graphics initialization
@@ -92,12 +98,15 @@ public:
   // }
 
   void onCreate() override {
+        adm_player_instance.onCreate();
+
     // Graphics setup
     shadedSphere.setSphere(15.0, 20);
     shadedSphere.setShaders(vertPath, fragPath);
     shadedSphere.update();
     }
   void onAnimate(double dt) override {
+
     // Graphics animation
     if (running == true) {
       globalTime = globalTime + (dt * PLAYBACK_SPEED);
@@ -108,6 +117,8 @@ public:
   }
 
   void onDraw(al::Graphics &g) override {
+        adm_player_instance.onDraw(g);
+
     // Graphics rendering
     g.clear(0.0);
     g.shader(shadedSphere.shader());
@@ -125,9 +136,13 @@ public:
       }
     }
     return true;
+        return adm_player_instance.onKeyDown(k);
+
   }
 
   void onSound(al::AudioIOData& io) override {
+    adm_player_instance.onSound(io);
+
   }
 
 private:
@@ -138,6 +153,11 @@ private:
 
 int main() {
   MyApp app;
+ 
+  // Configure audio for 54 output channels, 0 input channels
+  // Adjust sample rate and buffer size as needed
+  
+  
   app.start();
   return 0;
 }
