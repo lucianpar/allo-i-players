@@ -54,7 +54,7 @@ public:
 //ADM PLAYER RELATED DONT TOUCH //
   adm_player adm_player_instance;
   MyApp() {
-    adm_player_instance.toggleGUI(false); // disable GUI
+    adm_player_instance.toggleGUI(true); // disable GUI
     adm_player_instance.setSourceAudioFolder("../adm-allo-player/sourceAudio/");
   }
   // Graphics related DONT TOUCH //
@@ -147,7 +147,9 @@ public:
   }
 
   void onDraw(al::Graphics &g) override {
+    if (isPrimary()) {
         adm_player_instance.onDraw(g);
+    }
 
     // Graphics rendering
     g.clear(0.0);
@@ -209,7 +211,8 @@ int main() {
   MyApp app;
  
   // Configure audio for 54 output channels, 0 input channels
-  // Adjust sample rate and buffer size as needed
+  // Adjust sample rate and buffer size as needed. (samplerate, buffer size, output channels, input channels)
+  app.configureAudio(48000, 512, 60, 0); // try 44.1k if there are sampling issuess
   
   
   app.start();
