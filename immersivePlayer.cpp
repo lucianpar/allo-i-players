@@ -36,7 +36,7 @@ public:
 //USER CONFIGURATION HERE - EDIT PATHS / SETTINGS//
     //SET PATHS HERE //
   
-  std::string fragName = "drowning.frag"; 
+  std::string fragName; 
   std::vector<std::string> fragOptions = {
       "CanyonScene.frag",
       "DunesScene.frag",
@@ -62,19 +62,23 @@ public:
   al::SearchPaths searchPaths;
   ShadedSphere shadedSphere;
   std::string vertPath;
-  std::string currentFragPath;
+  // std::string currentFragPath;
   std::vector<std::string> fragPathOptions;
   //
   // Audio related DONT TOUCH //
-   al::SoundFilePlayer player;
+  //  al::SoundFilePlayer player;
   // Parameters DONT TOUCH //
   al::Parameter globalTime{"globalTime", "", STARTING_TIME, 0.0, 300.0};
   al::ParameterBool running{"running", "0", false};
+  al::ParameterInt currentFragIndex{"currentFragIndex", "0", 0, 0, 10}; // for shader selection
+  // al::ParameterString currentFragPathParam{"currentFragPathParam", "", ""}; // for shader selection via GUI
+  // al::ParameterInt fragIndex{"fragIndex", "0", 0, 0, 10}; // for shader selection via GUI
   bool printTime = false;
 
 
   void onInit() override {
     adm_player_instance.onInit();
+
 
     parameterServer() << globalTime << running;
     // Graphics initialization
@@ -90,29 +94,29 @@ public:
 
     // Find fragment shaders listed in fragOptions and populate fragPathOptions.
     fragPathOptions.clear();
-    currentFragPath.clear();
+    // currentFragPath.clear();
     for (const auto &fragOption : fragOptions) {
       al::FilePath fragPathOptionSource = searchPaths.find(fragOption);
       if (fragPathOptionSource.valid()) {
         std::string fp = fragPathOptionSource.filepath();
         fragPathOptions.push_back(fp);
         std::cout << "Found fragment shader: " << fp << std::endl;
-        // Prefer the user-specified fragName if present, otherwise pick first found
-        if (currentFragPath.empty() || fragOption == fragName) {
-          currentFragPath = fp;
-        }
+        // // Prefer the user-specified fragName if present, otherwise pick first found
+        // if (currentFragPath.empty() || fragOption == fragName) {
+        //   currentFragPath = fp;
+        // }
       } else {
         std::cout << "Fragment shader not found in search paths: " << fragOption << std::endl;
       }
     }
 
-    if (currentFragPath.empty() && !fragPathOptions.empty()) {
-      currentFragPath = fragPathOptions.front();
-    }
+    // if (currentFragPath.empty() && !fragPathOptions.empty()) {
+    //   currentFragPath = fragPathOptions.front();
+    // }
 
-    if (currentFragPath.empty()) {
-      std::cerr << "No fragment shader found. Check shaderFolder and fragOptions." << std::endl;
-    }
+    // if (currentFragPath.empty()) {
+    //   std::cerr << "No fragment shader found. Check shaderFolder and fragOptions." << std::endl;
+    // }
 
     // Audio initialization
     // initializeAudio();
@@ -127,11 +131,12 @@ public:
 
     // Graphics setup
     shadedSphere.setSphere(15.0, 20);
-    if (!vertPath.empty() && !currentFragPath.empty()) {
-      shadedSphere.setShaders(vertPath, currentFragPath);
+    // currentFragPathParam = currentFragPath; // feed shader from primary to secondaries via paremeter
+    if (!vertPath.empty() && !fragPathOptions[currentFragIndex].empty()) {
+      shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
     } else {
       // Fallback: attempt to set whatever is available
-      shadedSphere.setShaders(vertPath, currentFragPath);
+      shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
     }
     shadedSphere.update();
   }
@@ -164,25 +169,27 @@ public:
       if (k.key() == ' ') {
         // Toggle both graphics and audio playback
         running = !running;
-        player.pause = !running;
+        // player.pause = !running;
         std::cout << (running ? "▶ Started" : "⏸ Paused") << " graphics" << std::endl;
         // return true;
       }
 
       // Select fragment shader via keys '1'..'9' (1 selects first found frag)
       if (k.key() >= '1' && k.key() <= '9') {
+        globalTime = 0.0f; // reset time on shader switch
         int idx = static_cast<int>(k.key() - '1'); // '1'->0, '2'->1, ...
         if (idx < static_cast<int>(fragPathOptions.size())) {
-          const std::string &selected = fragPathOptions[idx];
-          if (selected != currentFragPath) {
-            currentFragPath = selected;
-            if (!vertPath.empty() && !currentFragPath.empty()) {
-              shadedSphere.setShaders(vertPath, currentFragPath);
+          if (currentFragIndex == idx) {
+            std::cout << "Fragment shader [" << (idx + 1) << "] already active: " << fragPathOptions[idx] << std::endl;
+            return true; // no change needed
+          } else {
+          currentFragIndex = idx; // update parameter based on key
+         
+            if (!vertPath.empty() && !fragPathOptions[currentFragIndex].empty()) {
+              shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
               shadedSphere.update();
             }
-            std::cout << "Switched to fragment shader [" << (idx + 1) << "] " << currentFragPath << std::endl;
-          } else {
-            std::cout << "Fragment shader [" << (idx + 1) << "] already active" << std::endl;
+            std::cout << "Switched to fragment shader [" << (idx + 1) << "] " << fragPathOptions[currentFragIndex] << std::endl;
           }
         } else {
           std::cerr << "No fragment shader for key '" << static_cast<char>(k.key()) << "' (index " << (idx + 1) << ")" << std::endl;
