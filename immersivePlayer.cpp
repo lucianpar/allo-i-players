@@ -71,7 +71,7 @@ public:
   al::Parameter globalTime{"globalTime", "", STARTING_TIME, 0.0, 300.0};
   al::ParameterBool running{"running", "0", false};
   al::ParameterInt currentFragIndex{"currentFragIndex", "0", 0, 0, 10}; // for shader selection
-  std::int currentFlag;
+  int currentFlag;
 
   bool printTime = false;
 
@@ -135,10 +135,12 @@ public:
 
    
       // need to find a way to update these not every frame, but only when the shader changes. maybe a listener on the parameter?
-      if (currentFragIndex.get() != currentFragIndex.getPrevious()) {
+
+      if (currentFragIndex.get() != currentFlag) {
           shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
           shadedSphere.update();
       }
+      currentFlag = currentFragIndex.get();
   
   }
 
