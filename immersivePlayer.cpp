@@ -71,8 +71,7 @@ public:
   al::Parameter globalTime{"globalTime", "", STARTING_TIME, 0.0, 300.0};
   al::ParameterBool running{"running", "0", false};
   al::ParameterInt currentFragIndex{"currentFragIndex", "0", 0, 0, 10}; // for shader selection
-  // al::ParameterString currentFragPathParam{"currentFragPathParam", "", ""}; // for shader selection via GUI
-  // al::ParameterInt fragIndex{"fragIndex", "0", 0, 0, 10}; // for shader selection via GUI
+
   bool printTime = false;
 
 
@@ -80,7 +79,7 @@ public:
     adm_player_instance.onInit();
 
 
-    parameterServer() << globalTime << running;
+    parameterServer() << globalTime << running << currentFragIndex; // << currentFragPathParam; //
     // Graphics initialization
     searchPaths.addSearchPath(al::File::currentPath() + shaderFolder);
 
@@ -94,37 +93,21 @@ public:
 
     // Find fragment shaders listed in fragOptions and populate fragPathOptions.
     fragPathOptions.clear();
-    // currentFragPath.clear();
     for (const auto &fragOption : fragOptions) {
       al::FilePath fragPathOptionSource = searchPaths.find(fragOption);
       if (fragPathOptionSource.valid()) {
         std::string fp = fragPathOptionSource.filepath();
         fragPathOptions.push_back(fp);
         std::cout << "Found fragment shader: " << fp << std::endl;
-        // // Prefer the user-specified fragName if present, otherwise pick first found
-        // if (currentFragPath.empty() || fragOption == fragName) {
-        //   currentFragPath = fp;
-        // }
+     
       } else {
         std::cout << "Fragment shader not found in search paths: " << fragOption << std::endl;
       }
     }
 
-    // if (currentFragPath.empty() && !fragPathOptions.empty()) {
-    //   currentFragPath = fragPathOptions.front();
-    // }
-
-    // if (currentFragPath.empty()) {
-    //   std::cerr << "No fragment shader found. Check shaderFolder and fragOptions." << std::endl;
-    // }
-
-    // Audio initialization
-    // initializeAudio();
   }
 
-  // void initializeAudio() {
-  //
-  // }
+
 
   void onCreate() override {
         adm_player_instance.onCreate();
@@ -149,6 +132,8 @@ public:
         std::cout << globalTime << std::endl;
       }
     }
+    shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+    shadedSphere.update();
   }
 
   void onDraw(al::Graphics &g) override {
@@ -160,6 +145,10 @@ public:
     g.clear(0.0);
     g.shader(shadedSphere.shader());
     shadedSphere.setUniformFloat("u_time", globalTime);
+    // std::cout << fragPathOptions[currentFragIndex] << std::endl;
+    //shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+
+    shadedSphere.update();
     shadedSphere.draw(g);
   }
 
@@ -185,10 +174,10 @@ public:
           } else {
           currentFragIndex = idx; // update parameter based on key
          
-            if (!vertPath.empty() && !fragPathOptions[currentFragIndex].empty()) {
-              shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
-              shadedSphere.update();
-            }
+            // if (!vertPath.empty() && !fragPathOptions[currentFragIndex].empty()) {
+            //   shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+            //   shadedSphere.update();
+            // }
             std::cout << "Switched to fragment shader [" << (idx + 1) << "] " << fragPathOptions[currentFragIndex] << std::endl;
           }
         } else {
@@ -197,10 +186,18 @@ public:
        
       }
 
-          return adm_player_instance.onKeyDown(k);
-
+          
     }
-
+    // if (!isPrimary()) {
+    // shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+    // shadedSphere.update();
+    // return true;
+    // }
+    //  if (!vertPath.empty() && !fragPathOptions[currentFragIndex].empty()) {
+    //           shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+    //           shadedSphere.update();
+    //         }
+    return adm_player_instance.onKeyDown(k);
   }  
 
   void onSound(al::AudioIOData& io) override {
