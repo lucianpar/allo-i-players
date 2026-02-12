@@ -38,10 +38,11 @@ public:
   
   std::string fragName; 
   std::vector<std::string> fragOptions = {
-      "CanyonScene.frag",
-      "DunesScene.frag",
+      "DunesSphere.frag",
+      "CanyonSphere.frag",
       "ScatSphere.frag",
-      "smoothBlue.frag"
+      "smoothBlue.frag",
+      "CellNoise.frag"
   };
   std::string shaderFolder = "../miniShader/demoShaders/"; // set to mistShaders or ripeShaders
   std::string sourceAudioFolderSelection;
