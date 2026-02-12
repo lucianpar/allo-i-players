@@ -71,6 +71,7 @@ public:
   al::Parameter globalTime{"globalTime", "", STARTING_TIME, 0.0, 300.0};
   al::ParameterBool running{"running", "0", false};
   al::ParameterInt currentFragIndex{"currentFragIndex", "0", 0, 0, 10}; // for shader selection
+  std::int currentFlag;
 
   bool printTime = false;
 
@@ -125,15 +126,20 @@ public:
   }
   void onAnimate(double dt) override {
 
-    // Graphics animation
     if (running == true) {
       globalTime = globalTime + (dt * PLAYBACK_SPEED);
       if (printTime) {
         std::cout << globalTime << std::endl;
       }
     }
-    shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
-    shadedSphere.update();
+
+   
+      // need to find a way to update these not every frame, but only when the shader changes. maybe a listener on the parameter?
+      if (currentFragIndex.get() != currentFragIndex.getPrevious()) {
+          shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
+          shadedSphere.update();
+      }
+  
   }
 
   void onDraw(al::Graphics &g) override {
@@ -145,8 +151,6 @@ public:
     g.clear(0.0);
     g.shader(shadedSphere.shader());
     shadedSphere.setUniformFloat("u_time", globalTime);
-    // std::cout << fragPathOptions[currentFragIndex] << std::endl;
-    //shadedSphere.setShaders(vertPath, fragPathOptions[currentFragIndex]);
 
     shadedSphere.update();
     shadedSphere.draw(g);
