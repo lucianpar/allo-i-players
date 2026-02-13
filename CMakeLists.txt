@@ -15,7 +15,7 @@ if(MSVC)
 endif()
 
 # add source files to executable
-# add_executable(${APP_NAME} adm-allo-player/mainplayer.cpp)
+ #add_executable(${APP_NAME} adm-allo-player/mainplayer.cpp)
 # add_executable(${APP_NAME} miniShader/src/shaderPlayback.cpp)
 add_executable(${APP_NAME} immersivePlayer.cpp)
 
