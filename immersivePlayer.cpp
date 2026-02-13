@@ -147,6 +147,7 @@ public:
   }
 
   void onDraw(al::Graphics &g) override {
+    g.lens().eyeSep(0.0); // disable stereo separation for shader viewing
     if (isPrimary()) {
         adm_player_instance.onDraw(g);
     }
@@ -173,6 +174,7 @@ public:
 
       // Select fragment shader via keys '1'..'9' (1 selects first found frag)
       if (k.key() >= '1' && k.key() <= '9') {
+        running = false; // pause playback when switching shaders
         globalTime = 0.0f; // reset time on shader switch
         int idx = static_cast<int>(k.key() - '1'); // '1'->0, '2'->1, ...
         if (idx < static_cast<int>(fragPathOptions.size())) {
