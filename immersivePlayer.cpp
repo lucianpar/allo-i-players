@@ -38,7 +38,7 @@ public:
   
   std::string fragName; 
   std::vector<std::string> fragOptions = {
-      "DunesSphere.frag",
+    "Sphere1.frag",
       "CanyonSphere.frag",
       "ScatSphere.frag",
       "smoothBlue.frag",
